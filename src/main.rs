@@ -9,7 +9,7 @@ use std::{
 const DEFAULT_PORT: u16 = 80;
 const DEFAULT_INTERVAL_MS: u64 = 1000;
 
-fn print_stats(results: &Vec<u128>, ip: &str) {
+fn print_stats(results: &[u128], ip: &str) {
     let max = *results.iter().max().unwrap() as f64;
     let min = *results.iter().min().unwrap() as f64;
     let len = results.len() as u128;
@@ -94,5 +94,9 @@ fn main() {
             exit(84)
         }
     }
+    println!(
+        "Pinging {} with {} ms of interval on port {}",
+        ip, interval_ms, port
+    );
     my_tcping(ip, interval_ms, port);
 }
