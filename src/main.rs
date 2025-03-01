@@ -1,10 +1,12 @@
 use std::{
     io::{Read, Write},
     net::TcpStream,
-    process::exit,
     sync::mpsc::channel,
     time::{Duration, Instant},
 };
+
+mod parser;
+use parser::{Args, parse};
 
 const DEFAULT_PORT: u16 = 80;
 const DEFAULT_INTERVAL_MS: u64 = 1000;
@@ -34,6 +36,10 @@ fn my_tcping(ip: &str, interval: u64, port: u16) {
     ctrlc::set_handler(move || tx.send(true).expect("Could not send signal on channel."))
         .expect("Error setting Ctrl-C handler");
     let mut exit = false;
+    println!(
+        "Pinging {} with {} ms of interval on port {}",
+        ip, interval, port
+    );
     while !exit {
         let mut stream =
             TcpStream::connect(format!("{}:{}", ip, port)).expect("Error connecting to address!");
@@ -59,44 +65,11 @@ fn my_tcping(ip: &str, interval: u64, port: u16) {
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
-    let ip: &str = &args[1];
-    let mut port: u16 = DEFAULT_PORT;
-    let mut interval_ms: u64 = DEFAULT_INTERVAL_MS;
-    match args.len() {
-        2 => (),
-        3 => {
-            interval_ms = match args[2].parse() {
-                Ok(value) => value,
-                Err(_) => {
-                    println!("Invalid argument was given !");
-                    exit(84)
-                }
-            }
-        }
-        4 => {
-            port = match args[3].parse() {
-                Ok(value) => value,
-                Err(_) => {
-                    println!("Invalid argument was given !");
-                    exit(84)
-                }
-            };
-            interval_ms = match args[2].parse() {
-                Ok(value) => value,
-                Err(_) => {
-                    println!("Invalid argument was given !");
-                    exit(84)
-                }
-            }
-        }
-        _ => {
-            println!("Usage: {} <host> [<interval> <port>]", args[0]);
-            exit(84)
-        }
-    }
-    println!(
-        "Pinging {} with {} ms of interval on port {}",
-        ip, interval_ms, port
-    );
-    my_tcping(ip, interval_ms, port);
+    let mut settings = Args {
+        ip: &args[1],
+        port: DEFAULT_PORT,
+        interval: DEFAULT_INTERVAL_MS,
+    };
+    parse(&mut settings, &args);
+    my_tcping(settings.ip, settings.interval, settings.port);
 }
