@@ -2,6 +2,8 @@ mod parser;
 mod stats;
 mod tcp;
 
+use std::u64;
+
 use parser::parse;
 use stats::print_stats;
 use tcp::my_tcping;
@@ -13,6 +15,7 @@ pub struct Settings<'a> {
     pub ip: &'a str,
     pub port: u16,
     pub interval: u64,
+    pub number: u64,
     pub d_flag: bool,
     pub quiet: bool,
 }
@@ -24,6 +27,7 @@ pub fn print_help() {
     println!("\t-q | --quiet\tDoes not print the result of each requests.");
     println!("\t-p | --port\tChoose a specific port to ping.");
     println!("\t-i | --interval\tChoose a specific interval time between each requests.");
+    println!("\t-n | --number\tNumber of requests to send.");
     println!("\t-d\t\tSecret opton.");
 }
 
@@ -33,6 +37,7 @@ fn main() {
         ip: "",
         port: DEFAULT_PORT,
         interval: DEFAULT_INTERVAL_MS,
+        number: u64::MAX,
         d_flag: false,
         quiet: false,
     };

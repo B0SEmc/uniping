@@ -1,4 +1,7 @@
 pub fn print_stats(results: &[u128], ip: &str) {
+    if results.len() == 0 {
+        return;
+    }
     let max = *results.iter().max().unwrap() as f64;
     let min = *results.iter().min().unwrap() as f64;
     let len = results.len() as u128;

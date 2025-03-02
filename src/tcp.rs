@@ -9,6 +9,7 @@ use crate::Settings;
 
 pub fn my_tcping(settings: &Settings, results: &mut Vec<u128>) {
     let (tx, rx) = channel::<bool>();
+    let mut i = 0;
     ctrlc::set_handler(move || tx.send(true).expect("Could not send signal on channel."))
         .expect("Error setting Ctrl-C handler");
     let mut exit = false;
@@ -16,7 +17,13 @@ pub fn my_tcping(settings: &Settings, results: &mut Vec<u128>) {
         "Pinging {} on port {} with {} ms of interval",
         settings.ip, settings.port, settings.interval
     );
-    while !exit {
+    while !exit && i < settings.number {
+        if rx
+            .recv_timeout(Duration::from_millis(settings.interval))
+            .is_ok()
+        {
+            exit = true;
+        }
         let mut stream = TcpStream::connect(format!("{}:{}", settings.ip, settings.port))
             .expect("Error connecting to address!");
         let mut buffer: [u8; 1] = [0; 1];
@@ -34,11 +41,6 @@ pub fn my_tcping(settings: &Settings, results: &mut Vec<u128>) {
                 (elapsed.as_micros() as f64) / 1000.0
             );
         }
-        if rx
-            .recv_timeout(Duration::from_millis(settings.interval))
-            .is_ok()
-        {
-            exit = true;
-        }
+        i += 1;
     }
 }
