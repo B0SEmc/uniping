@@ -6,7 +6,7 @@ pub fn print_stats(results: &[u128], ip: &str) {
     let min = *results.iter().min().unwrap() as f64;
     let len = results.len() as u128;
     let stats = format!(
-        "Packets: {} min: {:.3} avg: {:.3} max: {:.3} maxdev: {:.3}",
+        "Number of requests: {}\n\tmin: {:.3} ms\n\tavg: {:.3} ms\n\tmax: {:.3} ms\n\tmaxdev: {:.3} ms",
         len,
         min / 1000.0,
         (results.iter().sum::<u128>() / len) as f64 / 1000.0,

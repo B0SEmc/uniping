@@ -6,10 +6,7 @@ pub fn parse<'a>(settings: &mut Settings<'a>, args: &'a [String]) {
     let mut i = 1;
     while i < args.len() {
         match args[i].as_str() {
-            "-d" => {
-                settings.d_flag = true;
-                settings.interval = 1
-            }
+            "-d" => settings.switch_to_d_flag(),
             "-h" | "--help" => {
                 print_help();
                 exit(0);
@@ -34,16 +31,13 @@ pub fn parse<'a>(settings: &mut Settings<'a>, args: &'a [String]) {
                     println!("Invalid interval time was given !");
                     exit(84);
                 }
-                if settings.d_flag {
-                    continue;
-                }
-                settings.interval = match args[i + 1].parse() {
+                settings.set_interval(match args[i + 1].parse() {
                     Ok(value) => value,
                     Err(_) => {
                         println!("Invalid interval time was given !");
                         exit(84);
                     }
-                };
+                });
                 i += 1;
             }
             "-n" | "--number" => {

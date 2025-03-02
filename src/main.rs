@@ -20,6 +20,30 @@ pub struct Settings<'a> {
     pub quiet: bool,
 }
 
+impl<'a> Settings<'a> {
+    pub fn create() -> Self {
+        Settings {
+            ip: "",
+            port: DEFAULT_PORT,
+            interval: DEFAULT_INTERVAL_MS,
+            number: u64::MAX,
+            d_flag: false,
+            quiet: false,
+        }
+    }
+    pub fn switch_to_d_flag(&mut self) {
+        self.d_flag = true;
+        self.interval = 0;
+    }
+    pub fn set_interval(&mut self, interval: u64) -> bool {
+        if self.d_flag {
+            return false;
+        }
+        self.interval = interval;
+        return true;
+    }
+}
+
 pub fn print_help() {
     println!("USAGE:\n\t./uniping TARGET [[flags] [args]]");
     println!("\nDESCRIPTION:");
@@ -33,14 +57,7 @@ pub fn print_help() {
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
-    let mut settings = Settings {
-        ip: "",
-        port: DEFAULT_PORT,
-        interval: DEFAULT_INTERVAL_MS,
-        number: u64::MAX,
-        d_flag: false,
-        quiet: false,
-    };
+    let mut settings: Settings = Settings::create();
     let mut results: Vec<u128> = Vec::new();
     parse(&mut settings, &args);
     my_tcping(&settings, &mut results);
