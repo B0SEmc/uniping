@@ -1,16 +1,8 @@
 use std::process::exit;
 
-use crate::print_help;
+use crate::{Settings, print_help};
 
-pub struct Args<'a> {
-    pub ip: &'a str,
-    pub port: u16,
-    pub interval: u64,
-    pub d_flag: bool,
-    pub quiet: bool,
-}
-
-pub fn parse<'a>(settings: &mut Args<'a>, args: &'a [String]) {
+pub fn parse<'a>(settings: &mut Settings<'a>, args: &'a [String]) {
     let mut i = 1;
     while i < args.len() {
         match args[i].as_str() {
