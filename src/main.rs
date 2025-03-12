@@ -2,8 +2,6 @@ mod parser;
 mod stats;
 mod tcp;
 
-use std::u64;
-
 use parser::parse;
 use stats::print_stats;
 use tcp::my_tcping;
@@ -18,17 +16,27 @@ pub struct Settings<'a> {
     pub number: u64,
     pub d_flag: bool,
     pub quiet: bool,
+    pub n_threads: std::num::NonZero<usize>,
 }
 
 impl<'a> Settings<'a> {
-    pub fn create() -> Self {
+    pub fn new(
+        ip: &'a str,
+        port: u16,
+        interval: u64,
+        number: u64,
+        d_flag: bool,
+        quiet: bool,
+        n_threads: std::num::NonZero<usize>,
+    ) -> Self {
         Settings {
-            ip: "",
-            port: DEFAULT_PORT,
-            interval: DEFAULT_INTERVAL_MS,
-            number: u64::MAX,
-            d_flag: false,
-            quiet: false,
+            ip,
+            port,
+            interval,
+            number,
+            d_flag,
+            quiet,
+            n_threads,
         }
     }
     pub fn switch_to_d_flag(&mut self) {
@@ -40,7 +48,21 @@ impl<'a> Settings<'a> {
             return false;
         }
         self.interval = interval;
-        return true;
+        true
+    }
+}
+
+impl Default for Settings<'_> {
+    fn default() -> Self {
+        Self::new(
+            "",
+            DEFAULT_PORT,
+            DEFAULT_INTERVAL_MS,
+            u64::MAX,
+            false,
+            false,
+            std::thread::available_parallelism().unwrap(),
+        )
     }
 }
 
@@ -57,7 +79,7 @@ pub fn print_help() {
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
-    let mut settings: Settings = Settings::create();
+    let mut settings: Settings = Settings::default();
     let mut results: Vec<u128> = Vec::new();
     parse(&mut settings, &args);
     my_tcping(&settings, &mut results);

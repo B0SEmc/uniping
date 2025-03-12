@@ -1,5 +1,5 @@
 pub fn print_stats(results: &[u128], ip: &str) {
-    if results.len() == 0 {
+    if results.is_empty() {
         return;
     }
     let max = *results.iter().max().unwrap() as f64;
